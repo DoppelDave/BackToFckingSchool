@@ -17,7 +17,7 @@ public:
 
 private:
 
-	//void Accelerate(void);
+	void Accelerate(const struct FInputActionValue& Value);
 
 protected:
 	// Called when the game starts or when spawned

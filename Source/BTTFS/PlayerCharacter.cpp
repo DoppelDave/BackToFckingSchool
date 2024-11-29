@@ -19,11 +19,13 @@ APlayerCharacter::APlayerCharacter()
 	if (InputManager) UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter initialized InputManager"));
 }
 
-//void APlayerCharacter::Accelerate(const FInputActionValue& Value)
-//{
-//	bRotate = Value.Get<bool>();
-//	UE_LOG(LogTemp, Warning, TEXT("Accelerate"));
-//}
+void APlayerCharacter::Accelerate(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Accelerate"));
+
+	bool bAccelerate = Value.Get<bool>();
+	if(bAccelerate) UE_LOG(LogTemp, Warning, TEXT("Accelerate"));
+}
 
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
@@ -46,9 +48,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	if (!InputManager) return;
 
-	/*if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInputComponent->BindAction(InputManager->GetAccelerateAction(), ETriggerEvent::Triggered, this, &APlayerCharacter::Accelerate);
-	}*/
+	}
 }
 
