@@ -2,10 +2,19 @@
 
 
 #include "InputManager.h"
+#include "InputMappingContext.h"
+#include "EnhancedInputSubsystems.h"
+#include "InputAction.h"
+#include "ActorUtils.h"
 
 AInputManager::AInputManager()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	UE_LOG(LogTemp, Warning, TEXT("InputManager initialized"));
+
+	if (!InputMapping) InputMapping = FindObject<UInputMappingContext>(*MappingContextPath);
+
+	FindActions();
 
 }
 
@@ -21,3 +30,25 @@ void AInputManager::Tick(float DeltaTime)
 
 }
 
+void AInputManager::InitInputMapping()
+{
+	if (ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(Player))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* InputSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
+		{
+			if (!InputMapping.IsNull())
+			{
+				InputSystem->AddMappingContext(InputMapping.LoadSynchronous(), 1);
+			}
+		}
+	}
+}
+
+
+void AInputManager::FindActions()
+{
+	if (!AccelerateAction) AccelerateAction = FindObject<UInputAction>(*AccelerateActionPath);
+	if (!SteerAction) SteerAction = FindObject<UInputAction>(*SteerActionPath);
+	//if (!OnClickAction) OnClickAction = FindObject<UInputAction>(*OnClickActionPath);
+	//if (!PauseAction) PauseAction = FindObject<UInputAction>(*PauseActionPath);*/
+}

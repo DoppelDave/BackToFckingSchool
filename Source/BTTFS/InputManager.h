@@ -38,10 +38,10 @@ public:
 
 private:
 
-	const FString MappingContextPath = TEXT("/Game/GambitWarriors/Core/Input/IMC_PlayerInput.IMC_PlayerInput");
+	const FString MappingContextPath = TEXT("/Game/BTTFS/Input/IMC_PlayerInput.IMC_PlayerInput");
 
-	const FString AccelerateActionPath = TEXT("/Game/GambitWarriors/Core/Input/IA_Accelerate.IA_Accelerate");
-	const FString SteerActionPath = TEXT("/Game/GambitWarriors/Core/Input/IA_Steer.IA_Steer");
+	const FString AccelerateActionPath = TEXT("/Game/BTTFS/Input/IA_Accelerate.IA_Accelerate");
+	const FString SteerActionPath = TEXT("/Game/BTTFS/Input/IA_Steer.IA_Steer");
 
 	UPROPERTY(EditAnywhere,
 		meta = (DisplayName = "InputMappingContext", Category = "Input"))
