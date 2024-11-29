@@ -1,0 +1,36 @@
+{
+	"RemapUnityFiles": 
+	{
+		"Module.WwiseSoundEngine.cpp.obj": [
+			"SoundEngine.cpp.obj",
+			"WwiseAssertHook.cpp.obj",
+			"WwiseSoundEngineModule.cpp.obj",
+			"WwiseSoundEngineUtils.cpp.obj",
+			"PS4API_2024_1.cpp.obj",
+			"PS5API_2024_1.cpp.obj",
+			"SwitchAPI_2024_1.cpp.obj",
+			"WindowsAPI_2024_1.cpp.obj",
+			"WinGDKAPI_2024_1.cpp.obj",
+			"XB1API_2024_1.cpp.obj",
+			"XboxOneGDKAPI_2024_1.cpp.obj",
+			"XSXAPI_2024_1.cpp.obj",
+			"WwiseCommAPI_2024_1.cpp.obj",
+			"WwiseMemoryMgrAPI_2024_1.cpp.obj",
+			"WwiseMonitorAPI_2024_1.cpp.obj",
+			"WwiseMusicEngineAPI_2024_1.cpp.obj",
+			"WwiseSoundEngineAPI_2024_1.cpp.obj",
+			"WwiseSpatialAudioAPI_2024_1.cpp.obj",
+			"WwiseStreamMgrAPI_2024_1.cpp.obj",
+			"WwiseSoundEngine_2024_1.cpp.obj",
+			"WwiseCommAPI_Null.cpp.obj",
+			"WwiseMemoryMgrAPI_Null.cpp.obj",
+			"WwiseMonitorAPI_Null.cpp.obj",
+			"WwiseMusicEngineAPI_Null.cpp.obj",
+			"WwiseSoundEngineAPI_Null.cpp.obj",
+			"WwiseSpatialAudioAPI_Null.cpp.obj",
+			"WwiseStreamMgrAPI_Null.cpp.obj",
+			"DefineNullBridges.cpp.obj",
+			"WwiseSoundEngine_Null.cpp.obj"
+		]
+	}
+}

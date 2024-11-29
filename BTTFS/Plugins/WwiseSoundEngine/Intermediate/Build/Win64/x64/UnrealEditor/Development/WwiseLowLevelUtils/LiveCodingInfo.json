@@ -1,0 +1,8 @@
+{
+	"RemapUnityFiles": 
+	{
+		"Module.WwiseLowLevelUtils.cpp.obj": [
+			"NamedEvents.cpp.obj"
+		]
+	}
+}
