@@ -6,6 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "EnhancedInputComponent.h"
 #include "ActorUtils.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 
@@ -22,7 +23,7 @@ APlayerCharacter::APlayerCharacter()
 	if (!InputManager && GetWorld()) InputManager = Cast<AInputManager>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	if (InputManager) UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter initialized InputManager"));
 
-	InitMesh();
+	InitMeshComponents();
 	InitCamera();
 }
 
@@ -50,6 +51,7 @@ void APlayerCharacter::StopAccelerate(void)
 	bAccelerating = false;
 }
 
+
 void APlayerCharacter::StopSteer(void)
 {
 	bSteerLeft = false;
@@ -60,37 +62,85 @@ void APlayerCharacter::Steer(const FInputActionValue& Value)
 {
 	float SteerValue = Value.Get<float>();
 
-	if (SteerValue > 0)
-	{
-		bSteerLeft = true;
-		bSteerRight = false;
-	}
-	else if (SteerValue < 0)
-	{
-		bSteerRight = true;
-		bSteerLeft = false;
-	}
+	float SpeedFactor = FMath::Clamp(CurrentSpeed / MaxSpeed, 0.0f, 1.0f);
+
+	float YawInput = SpeedFactor * SteerValue;
+
+	float ClampedYawInput = FMath::Clamp(YawInput, -MaxSteeringAngle, MaxSteeringAngle);
+
+	AddControllerYawInput(ClampedYawInput);
 }
 
-void APlayerCharacter::InitMesh(void)
+void APlayerCharacter::InitMeshComponents(void)
 {
-	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(MeshComponentName);
+	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(BaseComponentName);
 
-	if (MeshComponent)
+	if (BaseMesh)
 	{
-		MeshComponent->SetupAttachment(RootComponent);
+		BaseMesh->SetupAttachment(RootComponent);
 
-		UStaticMesh* StaticMesh = FindObject<UStaticMesh>(*MeshPath);
-		if (StaticMesh) MeshComponent->SetStaticMesh(StaticMesh);
+		UStaticMesh* StaticMesh = FindObject<UStaticMesh>(*BaseMeshPath);
+		if (StaticMesh) BaseMesh->SetStaticMesh(StaticMesh);
 	}
+
+	GunMesh = CreateDefaultSubobject<UStaticMeshComponent>(GunName);
+
+	if (GunMesh)
+	{
+		GunMesh->SetupAttachment(BaseMesh);
+
+		UStaticMesh* StaticMesh = FindObject<UStaticMesh>(*GunPath);
+		if (StaticMesh) GunMesh->SetStaticMesh(StaticMesh);
+	}
+
+	WheelLB = CreateDefaultSubobject<UStaticMeshComponent>(WheelLBName);
+
+	if (WheelLB)
+	{
+		WheelLB->SetupAttachment(BaseMesh);
+
+		UStaticMesh* StaticMesh = FindObject<UStaticMesh>(*WheelLBPath);
+		if (StaticMesh) WheelLB->SetStaticMesh(StaticMesh);
+	}
+
+	WheelRB = CreateDefaultSubobject<UStaticMeshComponent>(WheelRBName);
+
+	if (WheelRB)
+	{
+		WheelRB->SetupAttachment(BaseMesh);
+
+		UStaticMesh* StaticMesh = FindObject<UStaticMesh>(*WheelRBPath);
+		if (StaticMesh) WheelRB->SetStaticMesh(StaticMesh);
+	}
+
+	WheelLF = CreateDefaultSubobject<UStaticMeshComponent>(WheelLFName);
+
+	if (WheelLF)
+	{
+		WheelLF->SetupAttachment(BaseMesh);
+
+		UStaticMesh* StaticMesh = FindObject<UStaticMesh>(*WheelLFPath);
+		if (StaticMesh) WheelLF->SetStaticMesh(StaticMesh);
+	}
+
+	WheelRF = CreateDefaultSubobject<UStaticMeshComponent>(WheelRFName);
+
+	if (WheelRF)
+	{
+		WheelRF->SetupAttachment(BaseMesh);
+
+		UStaticMesh* StaticMesh = FindObject<UStaticMesh>(*WheelRFPath);
+		if (StaticMesh) WheelRF->SetStaticMesh(StaticMesh);
+	}
+	
 }
 
 void APlayerCharacter::InitCamera(void)
 {
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
-	if (SpringArm && MeshComponent)
+	if (SpringArm && BaseMesh)
 	{
-		SpringArm->SetupAttachment(MeshComponent);
+		SpringArm->SetupAttachment(BaseMesh);
 		SpringArm->TargetArmLength = 600.0f;
 		SpringArm->bUsePawnControlRotation = true;
 
@@ -100,15 +150,35 @@ void APlayerCharacter::InitCamera(void)
 		{
 			CameraComponent->SetupAttachment(SpringArm);
 			CameraComponent->bUsePawnControlRotation = false;
-			CameraComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 300.0f));
+			CameraComponent->SetRelativeLocation(FVector(40.0f, -23.0f, 180.0f));
+			CameraComponent->SetRelativeRotation(FRotator(-25.0f, 0.0f, 0.0f));
+			
 		}
 	}
+}
+
+void APlayerCharacter::InitTransform(void)
+{
+	if (BaseMesh)
+	{
+		UCapsuleComponent* CollisionBox = GetCapsuleComponent();
+
+		CollisionBox->SetCapsuleHalfHeight(50.0f);
+		CollisionBox->SetHiddenInGame(false);
+
+		BaseMesh->SetWorldRotation(StartRotation);
+
+		BaseMesh->SetRelativeLocation(FVector(0.0f, 25.0f, -40.0f));
+	}
+	SetActorScale3D(StartScale);
 }
 
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	InitTransform();
 	
 }
 
@@ -130,18 +200,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 	FVector ForwardVector = GetActorForwardVector();
 	AddMovementInput(ForwardVector, CurrentSpeed / MaxSpeed);
 
-	if (bSteerLeft) UE_LOG(LogTemp, Warning, TEXT("SteerLeft"))
-	else if (bSteerRight) UE_LOG(LogTemp, Warning, TEXT("SteerRight"));
-
-	if (!bSteerLeft && !bSteerRight) UE_LOG(LogTemp, Warning, TEXT("NoSteer"));
-	/*else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("NoSteer"));
-	}*/
-	
-
-
-	//UE_LOG(LogTemp, Warning, TEXT("Current Speed: %f"), CurrentSpeed);
+	UE_LOG(LogTemp, Warning, TEXT("Current Speed: %f"), CurrentSpeed);
 }
 
 // Called to bind functionality to input

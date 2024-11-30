@@ -21,8 +21,9 @@ private:
 	void StopAccelerate(void);
 	void StopSteer(void); 
 	void Steer(const struct FInputActionValue& Value);
-	void InitMesh(void);
+	void InitMeshComponents(void);
 	void InitCamera(void);
+	void InitTransform(void);
 
 protected:
 	// Called when the game starts or when spawned
@@ -42,6 +43,9 @@ private:
 	bool bSteerLeft = false;
 	bool bSteerRight = false;
 
+	FRotator StartRotation = FRotator(0.0f, -180.0f, 0.0f);
+	FVector StartScale = FVector(2.5f, 2.5f, 2.5f);
+
 	UPROPERTY(EditAnywhere,
 		meta = (DisplayName = "MaxSpeed", Category = "Data"))
 	float MaxSpeed = 4000.0f;
@@ -58,17 +62,28 @@ private:
 
 	UPROPERTY(EditAnywhere,
 		meta = (DisplayName = "MaxSteeringAngle", Category = "Data"))
-	float MaxSteeringAngle = 30.0f;
+	float MaxSteeringAngle = 2.0f;
 
 		UPROPERTY(EditAnywhere,
 			meta = (DisplayName = "BrakeRate", Category = "Data"))
-	float SteeringSpeed = 50.0f;
+	float SteeringSpeed = 3.0f;
 
 	float CurrentSteeringAngle = 0.0f;
 	
 
-	const FString MeshPath = TEXT("/Game/StarterContent/Props/SM_Couch");
-	const FName MeshComponentName = TEXT("SnowCar");
+	const FString BaseMeshPath = TEXT("/Game/BTTFS/Art/SnowCar/SM_Base");
+	const FString WheelLFPath = TEXT("/Game/BTTFS/Art/SnowCar/SM_Wheel_LF");
+	const FString WheelLBPath = TEXT("/Game/BTTFS/Art/SnowCar/SM_Wheel_LB");
+	const FString WheelRFPath = TEXT("/Game/BTTFS/Art/SnowCar/SM_Wheel_RF");
+	const FString WheelRBPath = TEXT("/Game/BTTFS/Art/SnowCar/SM_Wheel_RB");
+	const FString GunPath = TEXT("/Game/BTTFS/Art/SnowCar/SM_Gun");
+
+	const FName BaseComponentName = TEXT("Base");
+	const FName WheelLFName = TEXT("WheelLF");
+	const FName WheelLBName = TEXT("WheelLB");
+	const FName WheelRFName = TEXT("WheelRF");
+	const FName WheelRBName = TEXT("WheelRB");
+	const FName GunName = TEXT("Gun");
 
 
 	UPROPERTY(EditAnywhere,
@@ -76,8 +91,28 @@ private:
 	class AInputManager* InputManager = nullptr;
 
 	UPROPERTY(EditAnywhere,
-		meta = (DisplayName = "Mesh", Category = "Components"))
-	class UStaticMeshComponent* MeshComponent = nullptr;
+		meta = (DisplayName = "Base", Category = "Components"))
+	class UStaticMeshComponent* BaseMesh = nullptr;
+
+	UPROPERTY(EditAnywhere,
+		meta = (DisplayName = "WheelLF", Category = "Components"))
+	class UStaticMeshComponent* WheelLF = nullptr;
+
+	UPROPERTY(EditAnywhere,
+		meta = (DisplayName = "WheelLB", Category = "Components"))
+	class UStaticMeshComponent* WheelLB = nullptr;
+
+	UPROPERTY(EditAnywhere,
+		meta = (DisplayName = "WheelRF", Category = "Components"))
+	class UStaticMeshComponent* WheelRF = nullptr;
+
+	UPROPERTY(EditAnywhere,
+		meta = (DisplayName = "WheelRB", Category = "Components"))
+	class UStaticMeshComponent* WheelRB = nullptr;
+
+	UPROPERTY(EditAnywhere,
+		meta = (DisplayName = "Gun", Category = "Components"))
+	class UStaticMeshComponent* GunMesh = nullptr;
 
 	UPROPERTY(EditAnywhere,
 		meta = (DisplayName = "SpringArm", Category = "Components"))
