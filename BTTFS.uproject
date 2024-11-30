@@ -33,6 +33,10 @@
 		{
 			"Name": "WwiseSoundEngine",
 			"Enabled": false
+		},
+		{
+			"Name": "ChaosVehiclesPlugin",
+			"Enabled": true
 		}
 	]
 }
