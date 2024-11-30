@@ -133,7 +133,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 	if (bSteerLeft) UE_LOG(LogTemp, Warning, TEXT("SteerLeft"))
 	else if (bSteerRight) UE_LOG(LogTemp, Warning, TEXT("SteerRight"));
 
-
+	if (!bSteerLeft && !bSteerRight) UE_LOG(LogTemp, Warning, TEXT("NoSteer"));
 	/*else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("NoSteer"));
