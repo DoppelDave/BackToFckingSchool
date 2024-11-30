@@ -45,25 +45,29 @@ void APlayerCharacter::Accelerate(const FInputActionValue& Value)
 	else bAccelerating = false;
 }
 
+void APlayerCharacter::StopAccelerate(void)
+{
+	bAccelerating = false;
+}
+
+void APlayerCharacter::StopSteer(void)
+{
+	bSteerLeft = false;
+	bSteerRight = false;
+}
+
 void APlayerCharacter::Steer(const FInputActionValue& Value)
 {
 	float SteerValue = Value.Get<float>();
 
 	if (SteerValue > 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Steer left"));
 		bSteerLeft = true;
 		bSteerRight = false;
 	}
 	else if (SteerValue < 0)
 	{
 		bSteerRight = true;
-		bSteerLeft = false;
-		UE_LOG(LogTemp, Warning, TEXT("Steer right"));
-	}
-	else
-	{
-		bSteerRight = false;
 		bSteerLeft = false;
 	}
 }
@@ -115,7 +119,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	if (bAccelerating)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Accelerating"));
+		//UE_LOG(LogTemp, Warning, TEXT("Accelerating"));
 		CurrentSpeed = FMath::Min(CurrentSpeed + AccelerationRate * DeltaTime, MaxSpeed);
 	}
 	else
@@ -126,6 +130,15 @@ void APlayerCharacter::Tick(float DeltaTime)
 	FVector ForwardVector = GetActorForwardVector();
 	AddMovementInput(ForwardVector, CurrentSpeed / MaxSpeed);
 
+	if (bSteerLeft) UE_LOG(LogTemp, Warning, TEXT("SteerLeft"))
+	else if (bSteerRight) UE_LOG(LogTemp, Warning, TEXT("SteerRight"));
+
+
+	/*else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("NoSteer"));
+	}*/
+	
 
 
 	//UE_LOG(LogTemp, Warning, TEXT("Current Speed: %f"), CurrentSpeed);
@@ -141,7 +154,10 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInputComponent->BindAction(InputManager->GetAccelerateAction(), ETriggerEvent::Triggered, this, &APlayerCharacter::Accelerate);
+		EnhancedInputComponent->BindAction(InputManager->GetAccelerateAction(), ETriggerEvent::Completed, this, &APlayerCharacter::StopAccelerate);
+
 		EnhancedInputComponent->BindAction(InputManager->GetSteerAction(), ETriggerEvent::Triggered, this, &APlayerCharacter::Steer);
+		EnhancedInputComponent->BindAction(InputManager->GetSteerAction(), ETriggerEvent::Completed, this, &APlayerCharacter::StopSteer);
 	}
 }
 

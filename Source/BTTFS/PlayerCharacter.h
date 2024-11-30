@@ -18,6 +18,8 @@ public:
 private:
 
 	void Accelerate(const struct FInputActionValue& Value);
+	void StopAccelerate(void);
+	void StopSteer(void); 
 	void Steer(const struct FInputActionValue& Value);
 	void InitMesh(void);
 	void InitCamera(void);
@@ -42,18 +44,27 @@ private:
 
 	UPROPERTY(EditAnywhere,
 		meta = (DisplayName = "MaxSpeed", Category = "Data"))
-	float MaxSpeed = 1000.0f;
+	float MaxSpeed = 4000.0f;
 
 	UPROPERTY(EditAnywhere,
 		meta = (DisplayName = "AccelerationRate", Category = "Data"))
-	float AccelerationRate = 500.0f;
+	float AccelerationRate = 3000.0f;
 
 	UPROPERTY(EditAnywhere,
 		meta = (DisplayName = "BrakeRate", Category = "Data"))
-	float BrakeRate = 400.0f;
+	float BrakeRate = 1500.0f;
 
 	float CurrentSpeed = 0.0f;
 
+	UPROPERTY(EditAnywhere,
+		meta = (DisplayName = "MaxSteeringAngle", Category = "Data"))
+	float MaxSteeringAngle = 30.0f;
+
+		UPROPERTY(EditAnywhere,
+			meta = (DisplayName = "BrakeRate", Category = "Data"))
+	float SteeringSpeed = 50.0f;
+
+	float CurrentSteeringAngle = 0.0f;
 	
 
 	const FString MeshPath = TEXT("/Game/StarterContent/Props/SM_Couch");
