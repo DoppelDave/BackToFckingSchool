@@ -22,6 +22,7 @@ void AInputManager::BeginPlay()
 {
 	Super::BeginPlay();
 
+	InitInputMapping();
 }
 
 void AInputManager::Tick(float DeltaTime)
