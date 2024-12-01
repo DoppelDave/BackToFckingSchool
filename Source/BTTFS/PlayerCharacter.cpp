@@ -8,7 +8,11 @@
 #include "ActorUtils.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Sound/SoundCue.h"
+#include "Components/AudioComponent.h"
+#include "BulletActor.h"
 
 
 // Sets default values
@@ -23,25 +27,41 @@ APlayerCharacter::APlayerCharacter()
 	if (!InputManager && GetWorld()) InputManager = Cast<AInputManager>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	if (InputManager) UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter initialized InputManager"));
 
+	InitSoundCues();
 	InitMeshComponents();
 	InitCamera();
 }
 
+void APlayerCharacter::RotateCamera(void)
+{
+	if (!SpringArm || !InputManager) return;
+
+	float MouseX, MouseY;
+
+	InputManager->GetInputMouseDelta(MouseX, MouseY);
+
+	FRotator CurrentRotation = SpringArm->GetRelativeRotation();
+	FRotator CurrentRotationGun = CurrentRotation;
+	CurrentRotationGun.Yaw -= MouseX + 180.0f;
+	CurrentRotation.Yaw += MouseX;
+	SpringArm->SetRelativeRotation(CurrentRotation);
+
+	
+	if (!GunMesh) return;
+	GunMesh->SetRelativeRotation(CurrentRotationGun);
+}
+
 void APlayerCharacter::Accelerate(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Should Accelerate"));
-
 	float AccelerationValue = Value.Get<float>();
 
 	if (AccelerationValue > 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Accelerate"));
 		bAccelerating = true;
 	}
 	else if (AccelerationValue < 0)
 	{
 		bAccelerating = false;
-		UE_LOG(LogTemp, Warning, TEXT("Break"));
 	}
 	else bAccelerating = false;
 }
@@ -64,7 +84,7 @@ void APlayerCharacter::Steer(const FInputActionValue& Value)
 
 	float SpeedFactor = FMath::Clamp(CurrentSpeed / MaxSpeed, 0.0f, 1.0f);
 
-	float YawInput = SpeedFactor * SteerValue;
+	float YawInput = SpeedFactor * SteerValue * SteeringSpeed;
 
 	float ClampedYawInput = FMath::Clamp(YawInput, -MaxSteeringAngle, MaxSteeringAngle);
 
@@ -91,6 +111,9 @@ void APlayerCharacter::InitMeshComponents(void)
 
 		UStaticMesh* StaticMesh = FindObject<UStaticMesh>(*GunPath);
 		if (StaticMesh) GunMesh->SetStaticMesh(StaticMesh);
+
+		GunMesh->SetRelativeScale3D(FVector(0.7f, 0.7f, 0.7f));
+		GunMesh->SetRelativeLocation(FVector(-25.0f, 25.0f, 90.0f));
 	}
 
 	WheelLB = CreateDefaultSubobject<UStaticMeshComponent>(WheelLBName);
@@ -142,7 +165,8 @@ void APlayerCharacter::InitCamera(void)
 	{
 		SpringArm->SetupAttachment(BaseMesh);
 		SpringArm->TargetArmLength = 600.0f;
-		SpringArm->bUsePawnControlRotation = true;
+		SpringArm->bUsePawnControlRotation = false;
+		SpringArm->bDoCollisionTest = false;
 
 		CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 
@@ -164,7 +188,7 @@ void APlayerCharacter::InitTransform(void)
 		UCapsuleComponent* CollisionBox = GetCapsuleComponent();
 
 		CollisionBox->SetCapsuleHalfHeight(50.0f);
-		CollisionBox->SetHiddenInGame(false);
+		CollisionBox->SetHiddenInGame(true);
 
 		BaseMesh->SetWorldRotation(StartRotation);
 
@@ -173,13 +197,38 @@ void APlayerCharacter::InitTransform(void)
 	SetActorScale3D(StartScale);
 }
 
+void APlayerCharacter::InitSoundCues(void)
+{
+	AccelerationSoundCue = FindObject<USoundCue>(*AccelerationSoundPath);
+	IdleSoundCue = FindObject<USoundCue>(*IdleSoundPath);
+	SlowDownSoundCue = FindObject<USoundCue>(*SlowDownSoundPath);
+	MaxSpeedSoundCue = FindObject<USoundCue>(*MaxSpeedSoundPath);
+}
+
+void APlayerCharacter::PlaySoundCue(USoundCue* a_SoundCue)
+{
+	if (a_SoundCue) UGameplayStatics::PlaySound2D(this, a_SoundCue);
+}
+
+void APlayerCharacter::Shoot(void)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Shoot"));
+
+	if (!GetWorld()) return;
+
+	FVector SpawnLocation = GetActorLocation() + FVector(0.0f, 0.0f, 150.0f);
+	FRotator SpawnRotation = GunMesh->GetComponentRotation();
+	GetWorld()->SpawnActor<ABulletActor>(SpawnLocation, SpawnRotation);
+}
+
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
 	InitTransform();
-	
+	GetCharacterMovement()->MaxWalkSpeed = MaxSpeed;
+	//PlaySoundCue(IdleSoundCue);
 }
 
 // Called every frame
@@ -187,10 +236,28 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	RotateCamera();
+
 	if (bAccelerating)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("Accelerating"));
-		CurrentSpeed = FMath::Min(CurrentSpeed + AccelerationRate * DeltaTime, MaxSpeed);
+		//if (AccelerationSoundCue)
+		//{
+		//	if (AudioComponentInstance && !AudioComponentInstance->IsPlaying()) return;
+		//	// Sound an einen Actor oder eine Komponente anhängen
+		//	AudioComponentInstance = UGameplayStatics::SpawnSoundAttached(
+		//		AccelerationSoundCue,
+		//		this->GetRootComponent(), // An den Root-Component anhängen
+		//		NAME_None,               // Keine spezielle Socket
+		//		FVector::ZeroVector,     // Position (relativ zum Root)
+		//		FRotator::ZeroRotator,   // Rotation
+		//		EAttachLocation::KeepRelativeOffset,
+		//		true                     // Loopen des Sounds
+		//	);
+		//}
+
+		//PlaySoundCue(AccelerationSoundCue);
+		float DeltaSpeed = FMath::Square((MaxSpeed - CurrentSpeed) / MaxSpeed) * AccelerationRate * DeltaTime;
+		CurrentSpeed = FMath::Clamp(CurrentSpeed + DeltaSpeed, 0.0f, MaxSpeed);
 	}
 	else
 	{
@@ -199,8 +266,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	FVector ForwardVector = GetActorForwardVector();
 	AddMovementInput(ForwardVector, CurrentSpeed / MaxSpeed);
-
-	UE_LOG(LogTemp, Warning, TEXT("Current Speed: %f"), CurrentSpeed);
 }
 
 // Called to bind functionality to input
@@ -217,6 +282,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 		EnhancedInputComponent->BindAction(InputManager->GetSteerAction(), ETriggerEvent::Triggered, this, &APlayerCharacter::Steer);
 		EnhancedInputComponent->BindAction(InputManager->GetSteerAction(), ETriggerEvent::Completed, this, &APlayerCharacter::StopSteer);
+
+		EnhancedInputComponent->BindAction(InputManager->GetShootAction(), ETriggerEvent::Triggered, this, &APlayerCharacter::Shoot);
 	}
 }
 

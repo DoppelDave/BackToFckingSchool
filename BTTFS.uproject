@@ -34,5 +34,8 @@
 			"Name": "WwiseSoundEngine",
 			"Enabled": false
 		}
+	],
+	"TargetPlatforms": [
+		"Windows"
 	]
 }

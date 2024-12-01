@@ -34,6 +34,7 @@ public:
 
 	const class UInputAction* GetAccelerateAction(void) { return AccelerateAction; }
 	const class UInputAction* GetSteerAction(void) { return SteerAction; }
+	const class UInputAction* GetShootAction(void) { return ShootAction; }
 	//void SetMouseCursor(bool a_bShowCursor, bool a_bClickEvents, bool a_bOverEvents);
 
 private:
@@ -42,6 +43,7 @@ private:
 
 	const FString AccelerateActionPath = TEXT("/Game/BTTFS/Input/IA_Accelerate.IA_Accelerate");
 	const FString SteerActionPath = TEXT("/Game/BTTFS/Input/IA_Steer.IA_Steer");
+	const FString ShootActionPath = TEXT("/Game/BTTFS/Input/IA_Shoot.IA_Shoot");
 
 	UPROPERTY(EditAnywhere,
 		meta = (DisplayName = "InputMappingContext", Category = "Input"))
@@ -54,5 +56,9 @@ private:
 	UPROPERTY(EditAnywhere,
 		meta = (DisplayName = "SteerAction", Category = "Input"))
 	class UInputAction* SteerAction = nullptr;
+
+	UPROPERTY(EditAnywhere,
+		meta = (DisplayName = "ShootAction", Category = "Input"))
+	class UInputAction* ShootAction = nullptr;
 
 };

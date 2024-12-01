@@ -17,6 +17,7 @@ public:
 
 private:
 
+	void RotateCamera(void);
 	void Accelerate(const struct FInputActionValue& Value);
 	void StopAccelerate(void);
 	void StopSteer(void); 
@@ -24,6 +25,9 @@ private:
 	void InitMeshComponents(void);
 	void InitCamera(void);
 	void InitTransform(void);
+	void InitSoundCues(void);
+	void PlaySoundCue(class USoundCue* a_SoundCue);
+	void Shoot(void);
 
 protected:
 	// Called when the game starts or when spawned
@@ -44,15 +48,15 @@ private:
 	bool bSteerRight = false;
 
 	FRotator StartRotation = FRotator(0.0f, -180.0f, 0.0f);
-	FVector StartScale = FVector(2.5f, 2.5f, 2.5f);
+	FVector StartScale = FVector(2.5f, 3.5f, 2.5f);
 
 	UPROPERTY(EditAnywhere,
 		meta = (DisplayName = "MaxSpeed", Category = "Data"))
-	float MaxSpeed = 4000.0f;
+	float MaxSpeed = 5000.0f;
 
 	UPROPERTY(EditAnywhere,
 		meta = (DisplayName = "AccelerationRate", Category = "Data"))
-	float AccelerationRate = 3000.0f;
+	float AccelerationRate = 2500.0f;
 
 	UPROPERTY(EditAnywhere,
 		meta = (DisplayName = "BrakeRate", Category = "Data"))
@@ -62,12 +66,13 @@ private:
 
 	UPROPERTY(EditAnywhere,
 		meta = (DisplayName = "MaxSteeringAngle", Category = "Data"))
-	float MaxSteeringAngle = 2.0f;
+	float MaxSteeringAngle = 5.0f;
 
 		UPROPERTY(EditAnywhere,
 			meta = (DisplayName = "BrakeRate", Category = "Data"))
-	float SteeringSpeed = 3.0f;
+	float SteeringSpeed = 2.0f;
 
+	//float SteeringMultiplicator = 
 	float CurrentSteeringAngle = 0.0f;
 	
 
@@ -76,7 +81,18 @@ private:
 	const FString WheelLBPath = TEXT("/Game/BTTFS/Art/SnowCar/SM_Wheel_LB");
 	const FString WheelRFPath = TEXT("/Game/BTTFS/Art/SnowCar/SM_Wheel_RF");
 	const FString WheelRBPath = TEXT("/Game/BTTFS/Art/SnowCar/SM_Wheel_RB");
-	const FString GunPath = TEXT("/Game/BTTFS/Art/SnowCar/SM_Gun");
+	const FString GunPath = TEXT("/Game/BTTFS/Art/SnowCar/Gun");
+
+	const FString AccelerationSoundPath = TEXT("/Game/BTTFS/Audio/SFX/Player/PLYR_Loc_Accelerate/SFX_PLYR_Loc_Accelerate_Cue");
+	const FString SlowDownSoundPath = TEXT("/Game/BTTFS/Audio/SFX/Player/PLYR_Loc_SlowDown/SFX_PLYR_Loc_SlowDown_Cue");
+	const FString IdleSoundPath = TEXT("/Game/BTTFS/Audio/SFX/Player/PLYR_Loc_Idle/SLX_PLYR_Loc_Idle_lp_Cue");
+	const FString MaxSpeedSoundPath = TEXT("/Game/BTTFS/Audio/SFX/Player/PLYR_Loc_MaxSpeed/SFX_PLYR_Loc_MaxSpeed_lp_Cue");
+
+	const FName AccelerationSoundName = "AccelerationSound";
+	const FName SlowDownSoundName = "SlowDownSound";
+	const FName IdleSoundName = "IdleSound";
+	const FName MaxSpeedSoundName = "MaxSpeedSound";
+
 
 	const FName BaseComponentName = TEXT("Base");
 	const FName WheelLFName = TEXT("WheelLF");
@@ -121,5 +137,20 @@ private:
 	UPROPERTY(EditAnywhere,
 		meta = (DisplayName = "Camera", Category = "Components"))
 	class UCameraComponent* CameraComponent = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
+	TObjectPtr<class USoundCue> AccelerationSoundCue = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
+	TObjectPtr<class USoundCue> SlowDownSoundCue = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
+	TObjectPtr<class USoundCue>	MaxSpeedSoundCue = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
+	TObjectPtr<class USoundCue> IdleSoundCue = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
+	TObjectPtr<class UAudioComponent> AudioComponentInstance = nullptr;
 
 };

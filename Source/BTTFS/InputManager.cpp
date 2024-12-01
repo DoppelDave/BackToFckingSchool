@@ -50,6 +50,7 @@ void AInputManager::FindActions()
 {
 	if (!AccelerateAction) AccelerateAction = FindObject<UInputAction>(*AccelerateActionPath);
 	if (!SteerAction) SteerAction = FindObject<UInputAction>(*SteerActionPath);
+	if (!ShootAction) ShootAction = FindObject<UInputAction>(*ShootActionPath);
 	//if (!OnClickAction) OnClickAction = FindObject<UInputAction>(*OnClickActionPath);
 	//if (!PauseAction) PauseAction = FindObject<UInputAction>(*PauseActionPath);*/
 }
